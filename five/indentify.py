@@ -11,7 +11,7 @@ from imageProcessing import backPicture,frontPicture
 # 调试用 主程序
 def main():
 
-    path1="material/liang_1.jpg"
+    path1="material/li_1.jpg"
     # path2="material/li_2.jpg"
 
     # 加载正面照片
@@ -95,32 +95,32 @@ def frontPictureIdentify(path):
 
     # 测试用 显示信息图片
     # 总图
-    cv2.imshow("font", img)
-    cv2.waitKey(0)
+    # cv2.imshow("font", img)
+    # cv2.waitKey(0)
     # 姓名
-    cv2.imshow("name", name)
-    cv2.waitKey(0)
-    # 性别
-    cv2.imshow("sex", sex)
-    cv2.waitKey(0)
-    # 民族
-    cv2.imshow("nationality", nationality)
-    cv2.waitKey(0)
-    # 生日 年
-    cv2.imshow("birth_year", birth_year)
-    cv2.waitKey(0)
-    # 生日 月
-    cv2.imshow("birth_month", birth_month)
-    cv2.waitKey(0)
-    # 生日 日
-    cv2.imshow("birth_day", birth_day)
-    cv2.waitKey(0)
-    # 地址
-    cv2.imshow("address", address)
-    cv2.waitKey(0)
-    # 身份证号码
-    cv2.imshow("ID", ID)
-    cv2.waitKey(0)
+    # cv2.imshow("name", name)
+    # cv2.waitKey(0)
+    # # 性别
+    # cv2.imshow("sex", sex)
+    # cv2.waitKey(0)
+    # # 民族
+    # cv2.imshow("nationality", nationality)
+    # cv2.waitKey(0)
+    # # 生日 年
+    # cv2.imshow("birth_year", birth_year)
+    # cv2.waitKey(0)
+    # # 生日 月
+    # cv2.imshow("birth_month", birth_month)
+    # cv2.waitKey(0)
+    # # 生日 日
+    # cv2.imshow("birth_day", birth_day)
+    # cv2.waitKey(0)
+    # # 地址
+    # cv2.imshow("address", address)
+    # cv2.waitKey(0)
+    # # 身份证号码
+    # cv2.imshow("ID", ID)
+    # cv2.waitKey(0)
     # 释放窗口
     cv2.destroyAllWindows()
 
