@@ -2,15 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>{{ flag }}</title>
+    <link rel="stylesheet" type="text/css" href="./templates/css/mystyle.css">
 </head>
 <body>
-    <div style="margin: 15em;">
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="file" name="img">
-            <button type="submit">上传</button>
-        </form>
+    <div class ="main">
+        <h1>this is {{ flag }} page</h1>
+        <h4>now please choose you photos</h4>
+        <div class="after">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <a class="file">选择文件
+                    <input  type="file" name="img">
+                </a>
+                <br />
+                <button class= "button" type="submit">上传</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>

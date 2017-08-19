@@ -18,13 +18,12 @@ from django.conf.urls import url
 from django.conf.urls.static import static
 from django.contrib import admin
 
-from upload.views import uploadbackImg,uploadFrontImg,index
+from upload.views import uploadBackImg,uploadFrontImg,index
 
 urlpatterns = [
 
     url(r'^$',index),
     url(r'^uploadfront',uploadFrontImg),
-    url(r'^uploadback',uploadbackImg),
-    url(r'^admin/', admin.site.urls),
+    url(r'^uploadback',uploadBackImg),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

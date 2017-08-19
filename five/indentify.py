@@ -3,258 +3,285 @@
 
 # 依赖包
 import json
-from PIL import Image
+import re
 import cv2
-import pytesseract
+import sys
 from imageProcessing import backPicture,frontPicture
+from tesserast_ocr import tesseractChinese, tesseractSex, tesseractNationality, tesseractDate, tesseractID, \
+    tesseractValidperriod
+
 
 # 调试用 主程序
 def main():
 
-    path1="material/li_1.jpg"
-    # path2="material/li_2.jpg"
+    # 测试的图片路径 path1：正面图片路径 path2：反面图片路径
+    path1="material/pi_2.jpg"
+    path2="material/pi_1.jpg"
 
     # 加载正面照片
     frontPicture(path1)
 
     # 加载反面图片
-    # backPicture(path2)
+    backPicture(path2)
 
 # 正面身份证信息识别
 def frontPictureIdentify(path):
-    # 加载预处理照片
-    img = cv2.imread(path)
-    # 设置尺寸信息 身份证尺寸 85.6 mm * 54.0 mm * 1.0 mm
-    img = cv2.resize(img, (856, 540))
+    try:
+        # 加载预处理照片
+        img = cv2.imread(path,0)
 
-    # 姓名
-    Name=[]
-    name_heigth = 50
-    name_width = 150
-    name = img[name_heigth:name_heigth+80,name_width:name_width+370]
-    Name.append(name)
+        """
+            调试用 用于设置尺寸信息 
+            身份证尺寸 85.6 mm * 54.0 mm * 1.0 mm 
+            或者等比例缩小放大 修改imgWidth 和 imgHeight
+        """
 
-    # 性别
-    Sex=[]
-    sex_heigth = 120
-    sex_width = 150
-    sex = img[sex_heigth:sex_heigth + 70, sex_width:sex_width + 70]
-    Sex.append(sex)
+        height,width = img.shape
+        imgWidth = width
+        imgHeight = height
+        img = cv2.resize(img, (imgWidth, imgHeight))
 
-    # 民族
-    Nationality=[]
-    nationality_heigth = 120
-    nationality_width = 340
-    nationality = img[nationality_heigth:nationality_heigth + 70, nationality_width:nationality_width + 200]
-    Nationality.append(nationality)
+        """
+            对指定区域进行图像裁剪
+        """
+        # 姓名
+        Name = []
+        name_height = int(imgHeight / 10.8)
+        name_width = int(imgWidth / 5.7)
+        name_addHeight = int(imgHeight / 10.8 + imgHeight / 6.75)
+        name_addWidth = int(imgWidth / 5.7 + imgWidth / 2.31)
+        name = img[name_height:name_addHeight, name_width:name_addWidth]
+        Name.append(name)
 
-    # 生日 年
-    Birth_year=[]
-    birth_year_heigth = 190
-    birth_year_width = 160
-    birth_year = img[birth_year_heigth:birth_year_heigth + 70, birth_year_width:birth_year_width + 100]
-    Birth_year.append(birth_year)
+        # 性别
+        Sex = []
+        sex_height = int(imgHeight / 4.5)
+        sex_width = int(imgWidth / 5.7)
+        sex_addHeight = int(imgHeight / 4.5 + imgHeight / 7.71)
+        sex_addWidth = int(imgWidth / 5.7 + imgWidth / 12.22)
+        sex = img[sex_height:sex_addHeight, sex_width:sex_addWidth]
+        Sex.append(sex)
 
-    # 生日 月
-    Birth_month=[]
-    birth_month_heigth = 190
-    birth_month_width = 300
-    birth_month = img[birth_month_heigth:birth_month_heigth + 70, birth_month_width:birth_month_width + 40]
-    Birth_month.append(birth_month)
+        # 民族
+        Nationality = []
+        nationality_height = int(imgHeight / 4.5)
+        nationality_width = int(imgWidth / 2.55)
+        nationality_addHeight = int(imgHeight / 4.5 + imgHeight / 7.71)
+        nationality_addWidth = int(imgWidth / 2.55 + imgWidth / 4.28)
+        nationality = img[nationality_height:nationality_addHeight, nationality_width:nationality_addWidth]
+        Nationality.append(nationality)
 
-    # 生日 日
-    Birth_day=[]
-    birth_day_heigth = 190
-    birth_day_width = 370
-    birth_day = img[birth_day_heigth:birth_day_heigth + 70, birth_day_width:birth_day_width + 50]
-    Birth_day.append(birth_day)
+        # 生日 年
+        Birth_year = []
+        birth_year_height = int(imgHeight / 2.84)
+        birth_year_width = int(imgWidth / 5.35)
+        birth_year_addHeight = int(imgHeight / 2.84 + imgHeight / 7.71)
+        birth_year_addWidth = int(imgWidth / 5.35 + imgWidth / 8.56)
+        birth_year = img[birth_year_height:birth_year_addHeight, birth_year_width:birth_year_addWidth]
+        Birth_year.append(birth_year)
 
-    # 地址
-    Address=[]
-    address_heigth = 260
-    address_width = 150
-    address = img[address_heigth:address_heigth + 170, address_width:address_width + 380]
-    Address.append(address)
+        # 生日 月
+        Birth_month = []
+        birth_month_height = int(imgHeight / 2.84)
+        birth_month_width = int(imgWidth / 2.85)
+        birth_month_addHeight = int(imgHeight / 2.84 + imgHeight / 7.71)
+        birth_month_addWidth = int(imgWidth / 2.85 + imgWidth / 21.4)
+        birth_month = img[birth_month_height:birth_month_addHeight, birth_month_width:birth_month_addWidth]
+        Birth_month.append(birth_month)
 
-    # 身份证号
-    ID_number =[]
-    ID_heigth = 425
-    ID_width = 280
-    ID = img[ID_heigth:ID_heigth + 80, ID_width:ID_width + 550]
-    ID_number.append(ID)
+        # 生日 日
+        Birth_day = []
+        birth_day_height = int(imgHeight / 2.84)
+        birth_day_width = int(imgWidth / 2.31)
+        birth_day_addHeight = int(imgHeight / 2.84 + imgHeight / 7.71)
+        birth_day_addWidth = int(imgWidth / 2.31 + imgWidth / 17.12)
+        birth_day = img[birth_day_height:birth_day_addHeight, birth_day_width:birth_day_addWidth]
+        Birth_day.append(birth_day)
 
-    # 测试用 前台打印信息
-    print "Name:", tesseractChinese(Name)
-    print "Sex:", tesseractSex(Sex)
-    print "Nationality:", tesseractNationality(Nationality)
-    print "Birth:", tesseractDate(Birth_year) + "/" \
-                                                "" + tesseractDate(Birth_month) + "/" \
-                                                                                  "" + tesseractDate(Birth_day)
-    print "Address:", tesseractChinese(Address)
-    print "ID_number:",tesseractID(ID_number)
+        # 地址
+        Address = []
+        address_height = int(imgHeight / 2.07)
+        address_width = int(imgWidth / 5.7)
+        address_addHeight = int(imgHeight / 2.07 + imgHeight / 3.17)
+        address_addWidth = int(imgWidth / 5.7 + imgWidth / 2.25)
+        address = img[address_height:address_addHeight, address_width:address_addWidth]
+        Address.append(address)
 
-    # 测试用 显示信息图片
-    # 总图
-    # cv2.imshow("font", img)
-    # cv2.waitKey(0)
-    # 姓名
-    # cv2.imshow("name", name)
-    # cv2.waitKey(0)
-    # # 性别
-    # cv2.imshow("sex", sex)
-    # cv2.waitKey(0)
-    # # 民族
-    # cv2.imshow("nationality", nationality)
-    # cv2.waitKey(0)
-    # # 生日 年
-    # cv2.imshow("birth_year", birth_year)
-    # cv2.waitKey(0)
-    # # 生日 月
-    # cv2.imshow("birth_month", birth_month)
-    # cv2.waitKey(0)
-    # # 生日 日
-    # cv2.imshow("birth_day", birth_day)
-    # cv2.waitKey(0)
-    # # 地址
-    # cv2.imshow("address", address)
-    # cv2.waitKey(0)
-    # # 身份证号码
-    # cv2.imshow("ID", ID)
-    # cv2.waitKey(0)
-    # 释放窗口
-    cv2.destroyAllWindows()
+        # 身份证号码
+        ID_number = []
+        ID_height = int(imgHeight / 1.27)
+        ID_width = int(imgWidth / 3.06)
+        ID_addHeight = int(imgHeight / 1.27 + imgHeight / 6.75)
+        ID_addWidth = int(imgWidth / 3.06 + imgWidth / 1.55)
+        ID = img[ID_height:ID_addHeight, ID_width:ID_addWidth]
+        ID_number.append(ID)
 
-    # 数据打包
-    data =[{ "Name":tesseractChinese(Name).encode("utf-8"),
-             "Sex":tesseractSex(Sex),
-             "Nationality":tesseractNationality(Nationality),
-             "Birth":tesseractDate(Birth_year)+"/" \
-                ""+tesseractDate(Birth_month)+"/" \
-                ""+tesseractDate(Birth_day),
-             "Address":tesseractChinese(Address),
-             "ID_number":tesseractID(ID_number)}]
-    # json封装
-    frontData = json.dumps(data)
-    return frontData
+        # # 测试用 显示信息图片
+        # # 总图
+        # cv2.namedWindow("font",cv2.WINDOW_NORMAL)
+        # cv2.imshow("font", img)
+        # cv2.waitKey(0)
+        # # 姓名
+        # cv2.imshow("name", name)
+        # cv2.waitKey(0)
+        # # 性别
+        # cv2.imshow("sex", sex)
+        # cv2.waitKey(0)
+        # # 民族
+        # cv2.imshow("nationality", nationality)
+        # cv2.waitKey(0)
+        # # 生日 年
+        # cv2.imshow("birth_year", birth_year)
+        # cv2.waitKey(0)
+        # # 生日 月
+        # cv2.imshow("birth_month", birth_month)
+        # cv2.waitKey(0)
+        # # 生日 日
+        # cv2.imshow("birth_day", birth_day)
+        # cv2.waitKey(0)
+        # # 地址
+        # cv2.imshow("address", address)
+        # cv2.waitKey(0)
+        # # 身份证号码
+        # cv2.imshow("ID", ID)
+        # cv2.waitKey(0)
+        # 释放窗口
+        cv2.destroyAllWindows()
+
+        # 文字识别
+        out_name = tesseractChinese(Name)
+        out_sex = tesseractSex(Sex)
+        out_nationality = tesseractNationality(Nationality)
+        out_birth_year = tesseractDate(Birth_year)
+        out_birth_month = tesseractDate(Birth_month)
+        out_birth_day = tesseractDate(Birth_day)
+        out_address = tesseractChinese(Address)
+        out_ID_number = tesseractID(ID_number)
+
+        # 没有识别出结果
+        identifyFailed = "识别失败"
+        if (len(out_name)==0):
+            out_name = identifyFailed
+        if (len(out_sex) == 0):
+            out_sex = identifyFailed
+        if (len(out_nationality)==0):
+            out_nationality = identifyFailed
+        if (len(out_birth_year) == 0):
+            out_birth_year = identifyFailed
+        if (len(out_birth_month) == 0):
+            out_birth_month = identifyFailed
+        if (len(out_birth_day) == 0):
+            out_birth_day = identifyFailed
+        if (len(out_address) == 0):
+            out_address = identifyFailed
+        if not (re.match(r"^\d{17}(\d|X|x)$", out_ID_number)):
+            out_ID_number = identifyFailed
+
+        # 根据身份证信息补全
+        if (re.match(r"^\d{17}(\d|X|x)$", out_ID_number)):
+            if (out_sex is identifyFailed):
+                if (int(out_ID_number[17:18]) % 2 == 1):
+                    out_sex = "女"
+                if (int(out_ID_number[17:18]) % 2 == 0):
+                    out_sex = "男"
+            if (out_birth_year is identifyFailed):
+                out_birth_year = int(out_ID_number[6:10])
+            if (out_birth_month is identifyFailed):
+                out_birth_month = int(out_ID_number[10:12])
+            if (out_birth_day is identifyFailed):
+                out_birth_day = int(out_ID_number[12:14])
+
+        # 打印数据
+        print "name",out_name
+        print "sex",out_sex
+        print "nationality",out_nationality
+        print "birth",out_birth_year+"/" +out_birth_month+"/"+out_birth_day
+        print "address",out_address
+        print "ID_number",out_ID_number
+
+        # 数据打包
+        data ={
+                    "Name":out_name,
+                    "Sex":out_sex,
+                    "Nationality":out_nationality,
+                    "Birth":out_birth_year+"/" +out_birth_month+"/"+out_birth_day,
+                    "Address":out_address,
+                    "ID_number":out_ID_number,
+                    "code":0
+                 }
+        # json封装
+        frontData = json.dumps(data)
+        return frontData
+    except BaseException:
+        print "！！！！请处理异常：",sys.exc_info()
 
 # 身份证背面信息读取
 def backPictureIdentify(path):
-    # 加载图片
-    img = cv2.imread(path)
-    # 设置尺寸
-    img = cv2.resize(img, (856, 540))
+    try:
+        # 加载图片
+        img = cv2.imread(path,0)
 
-    # 签发机关
-    IssuingAuthority = []
-    issuingAuthority_heigth = 360
-    issuingAuthority_width = 340
-    issuingAuthority = img[issuingAuthority_heigth:issuingAuthority_heigth + 80,
-                       issuingAuthority_width:issuingAuthority_width + 500]
-    IssuingAuthority.append(issuingAuthority)
+        # 设置尺寸信息 身份证尺寸 85.6 mm * 54.0 mm * 1.0 mm
+        height, width = img.shape
+        imgWidth = width
+        imgHeight = height
+        img = cv2.resize(img, (imgWidth, imgHeight))
 
-    # 有效期
-    ValidPerriod = []
-    validPerriod_heigth = 430
-    validPerriod_width = 340
-    validPerriod = img[validPerriod_heigth:validPerriod_heigth + 80,
-                   validPerriod_width:validPerriod_width + 500]
-    ValidPerriod.append(validPerriod)
+        blur = cv2.GaussianBlur(img, (11, 11), 0)
+        retval, img = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-    # 调试用 前台打印信息
-    print "IssuingAuthority:", tesseractChinese(IssuingAuthority)
-    print "ValidPerriod:", tesseractValidperriod(ValidPerriod)
+        # 签发机关
+        IssuingAuthority = []
+        issuingAuthority_height = int(imgHeight/1.5)
+        issuingAuthority_width = int(imgWidth/2.52)
+        issuingAuthority_addHeight = int(imgHeight/1.5+imgHeight/6.75)
+        issuingAuthority_addWidth = int(imgWidth/2.52+imgWidth/1.72)
+        issuingAuthority = img[issuingAuthority_height:issuingAuthority_addHeight,
+                           issuingAuthority_width:issuingAuthority_addWidth]
+        IssuingAuthority.append(issuingAuthority)
 
-    # # 调试用 显示图片
-    # # 总图
-    # cv2.imshow("back", img)
-    # cv2.waitKey(0)
-    # # 签证机关
-    # cv2.imshow("IssuingAuthority", issuingAuthority)
-    # cv2.waitKey(0)
-    # # 有效期
-    # cv2.imshow("ValidPerriod", validPerriod)
-    # cv2.waitKey(0)
-    # # 释放资源
-    # cv2.destroyAllWindows()
+        # 有效期
+        ValidPerriod = []
+        validPerriod_height = int(imgHeight/1.26)
+        validPerriod_width = int(imgWidth/2.52)
+        validPerriod_addHeight = int(imgHeight/1.26+imgHeight/6.75)
+        validPerriod_addWidth = int(imgWidth/2.52+imgWidth/1.72)
+        validPerriod = img[validPerriod_height:validPerriod_addHeight,
+                       validPerriod_width:validPerriod_addWidth]
+        ValidPerriod.append(validPerriod)
 
-    # 数据打包
-    data =[{"IssuingAuthority":tesseractChinese(IssuingAuthority),
-                "ValidPerriodStar": tesseractValidperriod(ValidPerriod)[:8],
-                "ValidPerriodEnd":tesseractValidperriod(ValidPerriod)[9:]
-                }]
-    # json封装
-    backData = json.dumps(data)
-    return backData
+        # # 调试用 显示图片
+        # # 总图
+        # cv2.namedWindow("back", cv2.WINDOW_NORMAL)
+        # cv2.imshow("back", img)
+        # cv2.waitKey(0)
+        # # 签证机关
+        # cv2.imshow("IssuingAuthority", issuingAuthority)
+        # cv2.waitKey(0)
+        # # 有效期
+        # cv2.imshow("ValidPerriod", validPerriod)
+        # cv2.waitKey(0)
+        # 释放资源
+        cv2.destroyAllWindows()
 
-
-
-# 通用中文信息识别
-def tesseractChinese(imgs):
-    """
-       psm
-       0 =仅定向和脚本检测（OSD）。
-       1 =自动页面分割与OSD。
-       2 =自动页面分割，但没有OSD或OCR。
-       3 =全自动页面分割，但没有OSD。（默认）
-       4 =假设可变大小的单列文本。
-       5 =假设垂直排列文本的单个统一块。
-       6 =假设单个统一的文本块。
-       7 =将图像视为单个文本行。
-       8 =将图像视为单个字。
-       9 =将图像视为一个单一的单词。
-       10 =将图像视为单个字符。
-    """
-    for img in imgs:
-        result = pytesseract.image_to_string(Image.fromarray(img),
-                                             lang='chi_sim',
-                                             config='-psm 3')
-    # 替换空格 以及回车符
-    return result.replace(" ","").replace("\n","")
-
-# 性别中文信息识别
-def tesseractSex(imgs):
-    for img in imgs:
-        result = pytesseract.image_to_string(Image.fromarray(img),
-                                             lang='chi_sim',
-                                             config="-c tessedit_char_whitelist=男女 -psm 8")
-    # 替换空格
-    return result.replace(" ","")
-
-# 民族中文信息识别
-def tesseractNationality(imgs):
-    for img in imgs:
-        result = pytesseract.image_to_string(Image.fromarray(img),
-                                             lang='chi_sim',
-                                             config="-psm 7")
-    # 替换空格
-    return result.replace(" ","")
-
-# 日期英文信息识别
-def tesseractDate(imgs):
-    for img in imgs:
-        result = pytesseract.image_to_string(Image.fromarray(img),
-                                             lang='eng',
-                                             config="-c tessedit_char_whitelist=0123456789 -psm 7")
-    # 替换空格
-    return result.replace(" ","")
-
-# 身份证号码英文信息识别
-def tesseractID(imgs):
-    for img in imgs:
-        result = pytesseract.image_to_string(Image.fromarray(img),
-                                             lang='eng',
-                                             config="-c tessedit_char_whitelist=0123456789X -psm 7")
-    # 替换空格
-    return result.replace(" ","")
-
-# 有效期中文信息识别
-def tesseractValidperriod(imgs):
-    for img in imgs:
-        result = pytesseract.image_to_string(Image.fromarray(img),
-                                             lang='chi_sim',
-                                             config="-c tessedit_char_whitelist=0123456789-长期 -psm 7")
-    # 替换空格
-    return result.replace(" ","")
+        # 文字识别
+        out_issuingAuthority = tesseractChinese(IssuingAuthority)
+        out_validPerriod = tesseractValidperriod(ValidPerriod)
+        # 调试用 前台打印信息
+        print "IssuingAuthority:",out_issuingAuthority
+        print "ValidPerriod:",out_validPerriod
+        # 数据打包
+        data ={
+                    "IssuingAuthority":out_issuingAuthority,
+                    "ValidPerriodStar": out_validPerriod[:8],
+                    "ValidPerriodEnd":out_validPerriod[9:],
+                    "code":0
+                 }
+        # json封装
+        backData = json.dumps(data)
+        return backData
+    except BaseException:
+        print "！！！！请处理异常：", sys.exc_info()
 
 # 测试用 单独运行时程序入口
 if __name__ == "__main__":

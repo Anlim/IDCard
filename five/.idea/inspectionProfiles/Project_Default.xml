@@ -36,6 +36,7 @@
           <option value="server.app.server.sqlclchemy" />
           <option value="manage.db_opera" />
           <option value="server.app.server.restful" />
+          <option value="cv2.cv" />
         </list>
       </option>
     </inspection_tool>

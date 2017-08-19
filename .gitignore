@@ -45,6 +45,13 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
+five/.idea/*
+five/db.sqlite3
+five/temp/*
+five/material/*
+five/test/*
+.idea*
+*.xml
 
 # Translations
 *.mo
